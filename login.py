@@ -1,82 +1,102 @@
+from flask import Flask, request, jsonify
 import mariadb
-from getpass import getpass
 
-# Setup MariaDB connection -----------------------------------
-conn = mariadb.connect(
-    user="root",             # change to your MariaDB username
-    password="1234",         # change to your MariaDB password
-    host="localhost",
-    port=3306,
-    database="mydatabase"    # change to your database
-)
+app = Flask(__name__)
+
+# -----------------------------
+# Database connection helper
+# -----------------------------
+def get_connection():
+    return mariadb.connect(
+        user="root",
+        password="1234",
+        host="localhost",
+        port=3306,
+        database="mydatabase"
+    )
+
+# -----------------------------
+# Initialize DB table
+# -----------------------------
+conn = get_connection()
 cursor = conn.cursor()
-print("Connected to MariaDB successfully!")
-
-cursor.execute("""CREATE TABLE IF NOT EXISTS accounts (
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS accounts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    point BIGINT,
-    mater BIGINT
-
-);""")
-
-# Count login failed
-login_attempts = {}
-
-# Register function ------------------------------------------
-def register():
-    username = input("Enter username: ")
-    password = input("Enter password: ")
-    mater = input("Enter mater: ")
-
-    try:
-        cursor.execute(
-            "INSERT INTO accounts (username, password, mater) VALUES (?, ?, ?)",
-            (username, password, mater)
-        )
-        conn.commit()
-        print("Account created!")
-    except mariadb.IntegrityError:
-        print("Username already exists!")
-
-# Login function ---------------------------------------------
-def login():
-    username = input("Enter your username: ")
-    password = getpass("Enter password: ")
-
-    # Too many attempts
-    if username in login_attempts and login_attempts[username] >= 3:
-        print("Too many failed attempts. Access blocked!")
-        return
-
-    cursor.execute("SELECT password FROM accounts WHERE username = ?", (username,))
-    row = cursor.fetchone()
-
-    if row and row[0] == password:
-        print("Login successful!")
-        login_attempts[username] = 0  # reset attempts
-    else:
-        print("Wrong password or username")
-        login_attempts[username] = login_attempts.get(username, 0) + 1
-
-# Menu loop ---------------------------------------------------
-while True:
-    print("\n--- MENU ---")
-    print("1. Register")
-    print("2. Login")
-    print("3. Exit")
-    choice = input("Choose: ")
-
-    if choice == "1":
-        register()
-    elif choice == "2":
-        login()
-    elif choice == "3":
-        break
-    else:
-        print("Invalid choice")
-
-# Close connection
+    point BIGINT DEFAULT 0,
+    meter BIGINT
+)
+""")
+conn.commit()
 cursor.close()
 conn.close()
+
+# -----------------------------
+# Login attempts tracking
+# -----------------------------
+login_attempts = {}
+
+# -----------------------------
+# Register endpoint
+# -----------------------------
+@app.route("/register", methods=["POST"])
+def register_endpoint():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+    meter = data.get("meter")
+
+    if not username or not password or not meter:
+        return jsonify({"error": "Missing fields"}), 400
+
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO accounts (username, password, meter) VALUES (?, ?, ?)",
+            (username, password, meter)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({"message": "Account created!"}), 201
+    except mariadb.IntegrityError:
+        return jsonify({"error": "Username already exists!"}), 400
+
+# -----------------------------
+# Login endpoint
+# -----------------------------
+@app.route("/login", methods=["POST"])
+def login_endpoint():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    if not username or not password:
+        return jsonify({"error": "Missing username or password"}), 400
+
+    # Too many attempts
+    if login_attempts.get(username, 0) >= 3:
+        return jsonify({"error": "Too many failed attempts. Access blocked!"}), 403
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT password FROM accounts WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if row and row[0] == password:
+        login_attempts[username] = 0  # reset attempts
+        return jsonify({"message": "Login successful!"}), 200
+    else:
+        login_attempts[username] = login_attempts.get(username, 0) + 1
+        return jsonify({"error": "Wrong username or password"}), 401
+
+# -----------------------------
+# Run server
+# -----------------------------
+if __name__ == "__main__":
+    app.run(debug=True)

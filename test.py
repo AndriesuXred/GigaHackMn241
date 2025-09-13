@@ -1,81 +1,88 @@
 import mariadb
-from getpass import getpass
+import pandas as pd
 
-# Setup MariaDB connection -----------------------------------
+# -----------------------------
+# Database connection
+# -----------------------------
 conn = mariadb.connect(
-    user="root",             # change to your MariaDB username
-    password="1234",         # change to your MariaDB password
+    user="root",
+    password="1234",
     host="localhost",
     port=3306,
-    database="mydatabase"    # change to your database
+    database="mydatabase"
 )
 cursor = conn.cursor()
 print("Connected to MariaDB successfully!")
 
-cursor.execute("""CREATE TABLE IF NOT EXISTS accounts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    poin BIGINT,
-    mater BIGINT
 
-);""")
+def calculate_points_for_all(date_str):
+    """
+    For each meter in accounts:
+    - Calculate ratio of off-peak vs peak kWh
+    - Convert to points
+    - Add to user's total points
+    """
 
-# Count login failed
-login_attempts = {}
+    # Get all meters from accounts
+    cursor.execute("SELECT id, meter, COALESCE(point, 0) FROM accounts")
+    accounts = cursor.fetchall()
 
-# Register function ------------------------------------------
-def register():
-    username = input("Enter username: ")
-    password = input("Enter password: ")
-    mater = input("Enter mater: ")
+    for acc_id, meter, current_points in accounts:
+        # Get meter data for given date
+        query = """
+        SELECT Clock, Active_Energy_Import
+        FROM energy_data
+        WHERE Meter = ? AND DATE(Clock) = ?
+        ORDER BY Clock
+        """
+        cursor.execute(query, (meter, date_str))
+        rows = cursor.fetchall()
 
-    try:
-        cursor.execute(
-            "INSERT INTO accounts (username, password, mater) VALUES (?, ?, ?)",
-            (username, password, mater)
-        )
+        if not rows:
+            print(f"No energy data for meter {meter} on {date_str}. Skipping...")
+            continue
+
+        # Load into DataFrame
+        df = pd.DataFrame(rows, columns=['Clock', 'Import'])
+        df['Clock'] = pd.to_datetime(df['Clock'])
+        df = df.sort_values('Clock')
+
+        # Calculate interval kWh
+        df['kWh'] = df['Import'].diff()
+        df = df.dropna()
+        df = df[df['kWh'] >= 0]
+
+        # Add hour column
+        df['Hour'] = df['Clock'].dt.hour
+
+        # Define peak hours (17:00–23:00)
+        peak = df[(df['Hour'] >= 17) & (df['Hour'] < 23)]['kWh'].sum()
+        offpeak = df['kWh'].sum() - peak
+
+        # Avoid divide-by-zero
+        total = peak + offpeak
+        ratio = (offpeak / total) if total > 0 else 0
+
+        # Points = 100 × ratio (rounded)
+        new_points = int(round(ratio * 100))
+        updated_points = current_points + new_points
+
+        # Update user points in accounts
+        cursor.execute("UPDATE accounts SET point = ? WHERE id = ?", (updated_points, acc_id))
         conn.commit()
-        print("Account created!")
-    except mariadb.IntegrityError:
-        print("Username already exists!")
 
-# Login function ---------------------------------------------
-def login():
-    username = input("Enter your username: ")
-    password = getpass("Enter password: ")
+        print(f"Meter {meter} - Peak: {peak:.2f} kWh, Off-peak: {offpeak:.2f} kWh")
+        print(f"Off-peak ratio = {ratio:.2%}")
+        print(f"Awarded {new_points} points (Total: {updated_points})")
+        print("-" * 40)
 
-    # Too many attempts
-    if username in login_attempts and login_attempts[username] >= 3:
-        print("Too many failed attempts. Access blocked!")
-        return
 
-    cursor.execute("SELECT password FROM accounts WHERE username = ?", (username,))
-    row = cursor.fetchone()
-
-    if row and row[0] == password:
-        print("Login successful!")
-        login_attempts[username] = 0  # reset attempts
-    else:
-        print("Wrong password or username")
-        login_attempts[username] = login_attempts.get(username, 0) + 1
-
-# Menu loop ---------------------------------------------------
-while True:
-    print("\n--- MENU ---")
-    print("1. Register")
-    print("2. Login")
-    print("3. Exit")
-    choice = input("Choose: ")
-
-    if choice == "1":
-        register()
-    elif choice == "2":
-        login()
-    elif choice == "3":
-        break
-    else:
-        print("Invalid choice")
+# -----------------------------
+# Example usage
+# -----------------------------
+if __name__ == "__main__":
+    date_str = input("Enter date (YYYY-MM-DD): ")
+    calculate_points_for_all(date_str)
 
 # Close connection
 cursor.close()

@@ -1,87 +1,123 @@
+from flask import Flask, request, jsonify
 import pandas as pd
 import mariadb
 import os
-from tqdm import tqdm
 
-#Setup MariaDB connection -----------------------------------
+app = Flask(__name__)
 
-conn = mariadb.connect(
-    user="root",           # change to your MariaDB username
-    password="1234",   # change to your MariaDB password
-    host="localhost",        # or your MariaDB host
-    port=3306,
-    database="mydatabase"    # change to your database
-)
-cursor = conn.cursor()
-print("Connected to MariaDB successfully!")
+# -----------------------------
+# Database connection helper
+# -----------------------------
+def get_connection():
+    try:
+        return mariadb.connect(
+            user="root",
+            password="1234",
+            host="localhost",
+            port=3306,
+            database="mydatabase"
+        )
+    except mariadb.ProgrammingError:
+        # Database doesn't exist, create it
+        conn = mariadb.connect(
+            user="root",
+            password="1234",
+            host="localhost",
+            port=3306
+        )
+        cursor = conn.cursor()
+        cursor.execute("CREATE DATABASE IF NOT EXISTS mydatabase")
+        conn.commit()
+        conn.close()
+        # Retry connection
+        return mariadb.connect(
+            user="root",
+            password="1234",
+            host="localhost",
+            port=3306,
+            database="mydatabase"
+        )
 
-#------------------------------------------------------------
-#Create the table
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS energy_data (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    Meter BIGINT,
-    Clock DATETIME,
-    Active_Energy_Import FLOAT,
-    Active_Energy_Export FLOAT,
-    TransFullCoef FLOAT
-)
-""")
-#-------------------------------------------------------------
+# -----------------------------
+# Endpoint: Import CSVs
+# -----------------------------
+@app.route("/import_csv", methods=["POST"])
+def import_csv_endpoint():
+    try:
+        data = request.get_json()
+        folder_path = data.get("folder_path", r"A:\PythonShitHackaton\EnergyTech")
 
+        if not os.path.exists(folder_path):
+            return jsonify({"error": f"Folder not found: {folder_path}"}), 400
 
-#Get Data from cvs file -------------------------------
-folderPath = r"A:\PythonShitHackaton\EnergyTech"
+        conn = get_connection()
+        cursor = conn.cursor()
 
-csvFiles = [f for f in os.listdir(folderPath) if f.endswith(".csv")]
+        # Create table if it doesn't exist
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS energy_data (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            Meter BIGINT,
+            Clock DATETIME,
+            Active_Energy_Import FLOAT,
+            Active_Energy_Export FLOAT,
+            TransFullCoef FLOAT
+        )
+        """)
+        conn.commit()
 
-for fileName in csvFiles:
-    filePath = os.path.join(folderPath, fileName)
+        csv_files = [f for f in os.listdir(folder_path) if f.endswith(".csv")]
+        summary = []
 
-    if os.stat(filePath).st_size == 0:
-        print(f"Skipping empty file: {fileName}")
-        continue
+        for file_name in csv_files:
+            file_path = os.path.join(folder_path, file_name)
+            if os.stat(file_path).st_size == 0:
+                summary.append({"file": file_name, "inserted_rows": 0, "status": "empty file"})
+                continue
 
-    #Load CSV
-    df = pd.read_csv(filePath, sep=";")
+            df = pd.read_csv(file_path, sep=";")
 
-    # Drop extra empty column if exists
-    if "Unnamed: 5" in df.columns:
-        df = df.drop(columns=["Unnamed: 5"])
+            # Drop extra empty column if exists
+            if "Unnamed: 5" in df.columns:
+                df = df.drop(columns=["Unnamed: 5"])
 
-    # Rename columns
-    df.columns = ["Meter", "Clock", "Active_Energy_Import", "Active_Energy_Export", "TransFullCoef"]
+            # Rename columns
+            df.columns = ["Meter", "Clock", "Active_Energy_Import", "Active_Energy_Export", "TransFullCoef"]
 
-    # Convert Clock to datetime
-    df['Clock'] = pd.to_datetime(df['Clock'], format="%d.%m.%Y %H:%M:%S")
+            # Convert Clock to datetime
+            df['Clock'] = pd.to_datetime(df['Clock'], format="%d.%m.%Y %H:%M:%S")
 
-    # Force numeric columns and handle empty values
-    for col in ["Active_Energy_Import", "Active_Energy_Export", "TransFullCoef"]:
-        df[col] = pd.to_numeric(df[col], errors="coerce")
+            # Force numeric columns and handle empty values
+            for col in ["Active_Energy_Import", "Active_Energy_Export", "TransFullCoef"]:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # Drop rows where critical values are missing
-    df = df.dropna(subset=["Active_Energy_Import", "Active_Energy_Export"])
+            # Drop rows with missing critical values
+            df = df.dropna(subset=["Active_Energy_Import", "Active_Energy_Export"])
+            data_to_insert = df.values.tolist()
 
-    # Prepare data for bulk insert
-    data_to_insert = df.values.tolist()
+            if data_to_insert:
+                cursor.executemany("""
+                    INSERT INTO energy_data (Meter, Clock, Active_Energy_Import, Active_Energy_Export, TransFullCoef)
+                    VALUES (?, ?, ?, ?, ?)
+                """, data_to_insert)
+                conn.commit()
 
-    # Insert data
-    cursor.executemany("""
-        INSERT INTO energy_data (Meter, Clock, Active_Energy_Import, Active_Energy_Export, TransFullCoef)
-        VALUES (?, ?, ?, ?, ?)
-    """, data_to_insert)
-    conn.commit()
-    print(f"{len(df)} rows from {fileName} inserted successfully!")
+            summary.append({"file": file_name, "inserted_rows": len(df), "status": "success"})
 
+        # Total rows in table
+        cursor.execute("SELECT COUNT(*) FROM energy_data;")
+        total_rows = cursor.fetchone()[0]
 
+        cursor.close()
+        conn.close()
 
-cursor.execute("SELECT COUNT(*) FROM energy_data;")
-count = cursor.fetchone()[0]
-print(f"Total rows in energy_data table: {count}")
-# Fetch first 5 rows
-cursor.execute("SELECT * FROM energy_data LIMIT 5;")
-for row in cursor.fetchall():
-    print(row)
-conn.close()
+        return jsonify({"summary": summary, "total_rows": total_rows})
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
+# -----------------------------
+# Run server
+# -----------------------------
+if __name__ == "__main__":
+    app.run(debug=True)

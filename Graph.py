@@ -1,78 +1,75 @@
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+from flask import Flask, request, jsonify
 import mariadb
 import pandas as pd
 
-def MakeGraph(meterId, date_str):
-    """
-    meterId: int, the ID of the meter
-    date_str: str, date in format 'YYYY-MM-DD'
-    """
+app = Flask(__name__)
 
-    # Connect to MariaDB
-    conn = mariadb.connect(
+# -----------------------------
+# Database connection helper
+# -----------------------------
+def get_connection():
+    return mariadb.connect(
         user="root",
         password="1234",
         host="localhost",
         port=3306,
         database="mydatabase"
     )
-    cursor = conn.cursor()
-    print("Connected to MariaDB successfully!")
 
-    # Query data for that meter and selected date
+# -----------------------------
+# Function to generate hourly JSON
+# -----------------------------
+def make_graph_json(meter_id, date_str):
+    conn = get_connection()
+    cursor = conn.cursor()
+
     query = """
-    SELECT Clock, Active_Energy_Import, Active_Energy_Export
+    SELECT Clock, Active_Energy_Import
     FROM energy_data
     WHERE Meter = ?
       AND DATE(Clock) = ?
     ORDER BY Clock ASC
     """
-    cursor.execute(query, (meterId, date_str))
+    cursor.execute(query, (meter_id, date_str))
     rows = cursor.fetchall()
-
-
-    if not rows:
-        print(f"No data found for Meter {meterId} on {date_str}")
-        conn.close()
-        return
-
-    # Load into DataFrame
-    df = pd.DataFrame(rows, columns=['Clock', 'Import', 'Export'])
-    df['Clock'] = pd.to_datetime(df['Clock'])
-    df = df.set_index('Clock')
-
-    # Calculate energy per 15-min interval
-    df['Import_Interval_kWh'] = df['Import'].diff()
-    df['Export_Interval_kWh'] = df['Export'].diff()
-    df = df.dropna()
-
-    # Resample to hourly intervals
-    hourly_df = df.resample('h').sum()
-
-    # Plot hourly energy
-    plt.figure(figsize=(12,6))
-    plt.bar(hourly_df.index, hourly_df['Import_Interval_kWh'], width=0.03, label='Import Energy (kWh)', color='blue', alpha=0.7)
-    plt.bar(hourly_df.index, hourly_df['Export_Interval_kWh'], width=0.03, label='Export Energy (kWh)', color='orange', alpha=0.7)
-    plt.xlabel('Time')
-    plt.ylabel('Energy per Hour (kWh)')
-    plt.title(f'Hourly Energy Usage for Meter {meterId} on {date_str}')
-
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-    plt.xticks(rotation=45)
-
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-
-    
-
     conn.close()
 
+    if not rows:
+        return []
+
+    df = pd.DataFrame(rows, columns=['Clock', 'Import'])
+    df['Clock'] = pd.to_datetime(df['Clock'])
+    df = df.set_index('Clock')
+    df['Import_Interval_kWh'] = df['Import'].diff()
+    df = df.dropna()
+    hourly_df = df.resample('h').sum()
+
+    json_list = [
+        {"label": idx.strftime("%Y-%m-%d %H:%M"), "Import": round(row['Import_Interval_kWh'], 2)}
+        for idx, row in hourly_df.iterrows()
+    ]
+    return json_list
+
 # -----------------------------
-# Example usage
+# Flask endpoint
 # -----------------------------
-meterId = 15005950
-date_str = "2025-06-06"
-MakeGraph(meterId, date_str)
+@app.route("/meter_hourly_data", methods=["POST"])
+def meter_hourly_data_endpoint():
+    data = request.get_json()
+    meter_id = data.get("meter_id")
+    date_str = data.get("date")
+
+    if not meter_id or not date_str:
+        return jsonify({"error": "Missing meter_id or date"}), 400
+
+    result = make_graph_json(meter_id, date_str)
+    if not result:
+        return jsonify({"message": f"No data found for meter {meter_id} on {date_str}"}), 404
+
+    return jsonify(result)
+
+# -----------------------------
+# Run server
+# -----------------------------
+if __name__ == "__main__":
+    app.run(debug=True)

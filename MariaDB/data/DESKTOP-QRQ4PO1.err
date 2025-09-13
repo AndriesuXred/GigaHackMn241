@@ -1,0 +1,145 @@
+2025-09-12 20:10:13 0 [Note] Starting MariaDB 12.0.2-MariaDB source revision aab83aecdca15738d114cf5a2f223f1d12e4e6bd server_uid R8FKKk1w1T4dPY4DcoSgLDTkcu0= as process 2948
+2025-09-12 20:10:13 0 [Note] InnoDB: Compressed tables use zlib 1.3.1
+2025-09-12 20:10:13 0 [Note] InnoDB: Number of transaction pools: 1
+2025-09-12 20:10:13 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-09-12 20:10:13 0 [Note] InnoDB: Using ThreadPool
+2025-09-12 20:10:13 0 [Note] InnoDB: innodb_buffer_pool_size_max=1776m, innodb_buffer_pool_size=1773m
+2025-09-12 20:10:13 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-09-12 20:10:13 0 [Note] InnoDB: File system buffers for log disabled (block size=4096 bytes)
+2025-09-12 20:10:13 0 [Note] InnoDB: End of log at LSN=47763
+2025-09-12 20:10:13 0 [Note] InnoDB: Opened 3 undo tablespaces
+2025-09-12 20:10:13 0 [Note] InnoDB: 128 rollback segments in 3 undo tablespaces are active.
+2025-09-12 20:10:13 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-09-12 20:10:13 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-09-12 20:10:13 0 [Note] InnoDB: log sequence number 47763; transaction id 14
+2025-09-12 20:10:13 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-09-12 20:10:13 0 [Note] InnoDB: Loading buffer pool(s) from A:\PythonShitHackaton\MariaDB\data\ib_buffer_pool
+2025-09-12 20:10:13 0 [Note] mysqld.exe: SSPI: using principal name 'localhost', mech 'Negotiate'
+2025-09-12 20:10:13 0 [Note] InnoDB: Buffer pool(s) load completed at 250912 20:10:13
+2025-09-12 20:10:14 0 [Note] Server socket created on IP: '::', port: '3306'.
+2025-09-12 20:10:14 0 [Note] Server socket created on IP: '0.0.0.0', port: '3306'.
+2025-09-12 20:10:14 0 [Note] mysqld.exe: Event Scheduler: Loaded 0 events
+2025-09-12 20:10:14 0 [Note] A:\PythonShitHackaton\MariaDB\bin\mysqld.exe: ready for connections.
+Version: '12.0.2-MariaDB'  socket: ''  port: 3306  mariadb.org binary distribution
+2025-09-12 20:11:24 3 [Warning] Access denied for user 'Niggu'@'localhost' (using password: NO)
+2025-09-12 20:37:05 4 [Warning] Aborted connection 4 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-12 23:05:11 0 [Note] Starting MariaDB 12.0.2-MariaDB source revision aab83aecdca15738d114cf5a2f223f1d12e4e6bd server_uid R8FKKk1w1T4dPY4DcoSgLDTkcu0= as process 6856
+2025-09-12 23:05:11 0 [Note] InnoDB: Compressed tables use zlib 1.3.1
+2025-09-12 23:05:11 0 [Note] InnoDB: Number of transaction pools: 1
+2025-09-12 23:05:11 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-09-12 23:05:11 0 [Note] InnoDB: Using ThreadPool
+2025-09-12 23:05:11 0 [Note] InnoDB: innodb_buffer_pool_size_max=1776m, innodb_buffer_pool_size=1773m
+2025-09-12 23:05:11 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-09-12 23:05:11 0 [Note] InnoDB: File system buffers for log disabled (block size=4096 bytes)
+2025-09-12 23:05:11 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=72424336
+2025-09-12 23:05:12 0 [Note] InnoDB: End of log at LSN=104917039
+2025-09-12 23:05:12 0 [Note] InnoDB: To recover: 1021 pages
+2025-09-12 23:05:12 0 [Note] InnoDB: Opened 3 undo tablespaces
+2025-09-12 23:05:12 0 [Note] InnoDB: 128 rollback segments in 3 undo tablespaces are active.
+2025-09-12 23:05:12 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-09-12 23:05:12 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-09-12 23:05:12 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-09-12 23:05:12 0 [Note] InnoDB: log sequence number 104917039; transaction id 114
+2025-09-12 23:05:12 0 [Note] InnoDB: Loading buffer pool(s) from A:\PythonShitHackaton\MariaDB\data\ib_buffer_pool
+2025-09-12 23:05:12 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-09-12 23:05:12 0 [Note] mysqld.exe: SSPI: using principal name 'localhost', mech 'Negotiate'
+2025-09-12 23:05:12 0 [Note] InnoDB: Buffer pool(s) load completed at 250912 23:05:12
+2025-09-12 23:05:12 0 [Note] Recovering after a crash using tc.log
+2025-09-12 23:05:12 0 [Note] Starting table crash recovery...
+2025-09-12 23:05:12 0 [Note] Crash table recovery finished.
+2025-09-12 23:05:12 0 [Note] Server socket created on IP: '::', port: '3306'.
+2025-09-12 23:05:12 0 [Note] Server socket created on IP: '0.0.0.0', port: '3306'.
+2025-09-12 23:05:12 0 [Note] mysqld.exe: Event Scheduler: Loaded 0 events
+2025-09-12 23:05:12 0 [Note] A:\PythonShitHackaton\MariaDB\bin\mysqld.exe: ready for connections.
+Version: '12.0.2-MariaDB'  socket: ''  port: 3306  mariadb.org binary distribution
+2025-09-12 23:43:21 8 [Warning] Aborted connection 8 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-12 23:45:12 10 [Warning] Aborted connection 10 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-12 23:47:16 11 [Warning] Aborted connection 11 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-12 23:47:42 12 [Warning] Aborted connection 12 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-12 23:48:56 13 [Warning] Aborted connection 13 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-12 23:50:07 14 [Warning] Aborted connection 14 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  0:07:48 3 [Warning] Aborted connection 3 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  1:25:08 32 [Warning] Access denied for user '-p'@'localhost' (using password: NO)
+2025-09-13  1:26:49 33 [Warning] Aborted connection 33 to db: 'user_system' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  1:34:57 34 [Warning] Aborted connection 34 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  1:36:06 35 [Warning] Aborted connection 35 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  1:46:21 39 [Warning] Aborted connection 39 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  1:47:52 40 [Warning] Aborted connection 40 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  1:48:07 41 [Warning] Aborted connection 41 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  1:55:43 42 [Warning] Aborted connection 42 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  1:57:12 46 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-13  1:57:15 47 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+2025-09-13  3:02:50 48 [Warning] Aborted connection 48 to db: 'mydatabase' user: 'root' host: 'localhost' (Lock wait timeout exceeded; try restarting transaction)
+2025-09-13  3:05:10 45 [Warning] Aborted connection 45 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  3:10:47 50 [Warning] Access denied for user 'energy_user'@'localhost' (using password: YES)
+2025-09-13  3:12:06 51 [Warning] Access denied for user 'energy_user'@'localhost' (using password: YES)
+2025-09-13  3:13:45 52 [Warning] Aborted connection 52 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  3:21:11 53 [Warning] Aborted connection 53 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  3:23:22 49 [Warning] Aborted connection 49 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  3:26:27 54 [Warning] Aborted connection 54 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  3:27:46 55 [Warning] Aborted connection 55 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  3:30:01 56 [Warning] Aborted connection 56 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  4:09:10 61 [Warning] Aborted connection 61 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  4:09:22 62 [Warning] Aborted connection 62 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  6:09:28 0 [Note] Starting MariaDB 12.0.2-MariaDB source revision aab83aecdca15738d114cf5a2f223f1d12e4e6bd server_uid R8FKKk1w1T4dPY4DcoSgLDTkcu0= as process 9960
+2025-09-13  6:09:28 0 [Note] InnoDB: Compressed tables use zlib 1.3.1
+2025-09-13  6:09:28 0 [Note] InnoDB: Number of transaction pools: 1
+2025-09-13  6:09:28 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-09-13  6:09:28 0 [Note] InnoDB: Using ThreadPool
+2025-09-13  6:09:28 0 [Note] InnoDB: innodb_buffer_pool_size_max=1776m, innodb_buffer_pool_size=1773m
+2025-09-13  6:09:28 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-09-13  6:09:28 0 [Note] InnoDB: File system buffers for log disabled (block size=4096 bytes)
+2025-09-13  6:09:28 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=686767091
+2025-09-13  6:09:28 0 [Note] InnoDB: End of log at LSN=694368207
+2025-09-13  6:09:28 0 [Note] InnoDB: To recover: 438 pages
+2025-09-13  6:09:28 0 [Note] InnoDB: Opened 3 undo tablespaces
+2025-09-13  6:09:28 0 [Note] InnoDB: 128 rollback segments in 3 undo tablespaces are active.
+2025-09-13  6:09:28 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-09-13  6:09:28 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-09-13  6:09:28 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-09-13  6:09:28 0 [Note] InnoDB: log sequence number 694368207; transaction id 336
+2025-09-13  6:09:28 0 [Note] InnoDB: Loading buffer pool(s) from A:\PythonShitHackaton\GigaHackMn241\MariaDB\data\ib_buffer_pool
+2025-09-13  6:09:28 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-09-13  6:09:28 0 [Note] InnoDB: Buffer pool(s) load completed at 250913  6:09:28
+2025-09-13  6:09:28 0 [Note] mysqld.exe: SSPI: using principal name 'localhost', mech 'Negotiate'
+2025-09-13  6:09:28 0 [Note] Recovering after a crash using tc.log
+2025-09-13  6:09:28 0 [Note] Starting table crash recovery...
+2025-09-13  6:09:28 0 [Note] Crash table recovery finished.
+2025-09-13  6:09:28 0 [Note] Server socket created on IP: '::', port: '3306'.
+2025-09-13  6:09:28 0 [Note] Server socket created on IP: '0.0.0.0', port: '3306'.
+2025-09-13  6:09:28 0 [Note] mysqld.exe: Event Scheduler: Loaded 0 events
+2025-09-13  6:09:28 0 [Note] A:\PythonShitHackaton\GigaHackMn241\MariaDB\bin\mysqld.exe: ready for connections.
+Version: '12.0.2-MariaDB'  socket: ''  port: 3306  mariadb.org binary distribution
+2025-09-13  6:10:47 3 [Warning] Aborted connection 3 to db: 'mydatabase' user: 'root' host: 'localhost' (Got an error reading communication packets)
+2025-09-13  6:12:49 0 [Note] Windows service "MariaDb":  received SERVICE_CONTROL_STOP
+2025-09-13  6:12:49 0 [Note] A:\PythonShitHackaton\GigaHackMn241\MariaDB\bin\mysqld.exe (initiated by: unknown): Normal shutdown
+2025-09-13  6:12:49 0 [Note] InnoDB: FTS optimize thread exiting.
+2025-09-13  6:12:49 0 [Note] InnoDB: Starting shutdown...
+2025-09-13  6:12:49 0 [Note] InnoDB: Dumping buffer pool(s) to A:\PythonShitHackaton\GigaHackMn241\MariaDB\data\ib_buffer_pool
+2025-09-13  6:12:49 0 [Note] InnoDB: Buffer pool(s) dump completed at 250913  6:12:49
+2025-09-13  6:12:49 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-09-13  6:12:49 0 [Note] InnoDB: Shutdown completed; log sequence number 694368513; transaction id 338
+2025-09-13  6:12:49 0 [Note] A:\PythonShitHackaton\GigaHackMn241\MariaDB\bin\mysqld.exe: Shutdown complete
+2025-09-13  7:04:08 0 [Note] Starting MariaDB 12.0.2-MariaDB source revision aab83aecdca15738d114cf5a2f223f1d12e4e6bd server_uid R8FKKk1w1T4dPY4DcoSgLDTkcu0= as process 19024
+2025-09-13  7:04:08 0 [Note] InnoDB: Compressed tables use zlib 1.3.1
+2025-09-13  7:04:08 0 [Note] InnoDB: Number of transaction pools: 1
+2025-09-13  7:04:08 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-09-13  7:04:08 0 [Note] InnoDB: Using ThreadPool
+2025-09-13  7:04:08 0 [Note] InnoDB: innodb_buffer_pool_size_max=1776m, innodb_buffer_pool_size=1773m
+2025-09-13  7:04:08 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-09-13  7:04:08 0 [Note] InnoDB: File system buffers for log disabled (block size=4096 bytes)
+2025-09-13  7:04:08 0 [Note] InnoDB: End of log at LSN=694368513
+2025-09-13  7:04:08 0 [Note] InnoDB: Opened 3 undo tablespaces
+2025-09-13  7:04:08 0 [Note] InnoDB: 128 rollback segments in 3 undo tablespaces are active.
+2025-09-13  7:04:08 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-09-13  7:04:08 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-09-13  7:04:08 0 [Note] InnoDB: log sequence number 694368513; transaction id 336
+2025-09-13  7:04:08 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-09-13  7:04:08 0 [Note] InnoDB: Loading buffer pool(s) from A:\PythonShitHackaton\GigaHackMn241\MariaDB\data\ib_buffer_pool
+2025-09-13  7:04:08 0 [Note] mysqld.exe: SSPI: using principal name 'localhost', mech 'Negotiate'
+2025-09-13  7:04:08 0 [Note] InnoDB: Buffer pool(s) load completed at 250913  7:04:08
+2025-09-13  7:04:08 0 [Note] Server socket created on IP: '::', port: '3306'.
+2025-09-13  7:04:08 0 [Note] Server socket created on IP: '0.0.0.0', port: '3306'.
+2025-09-13  7:04:08 0 [Note] mysqld.exe: Event Scheduler: Loaded 0 events
+2025-09-13  7:04:08 0 [Note] A:\PythonShitHackaton\GigaHackMn241\MariaDB\bin\mysqld.exe: ready for connections.
+Version: '12.0.2-MariaDB'  socket: ''  port: 3306  mariadb.org binary distribution

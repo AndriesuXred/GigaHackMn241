@@ -1,0 +1,18 @@
+for _, row in tqdm(df.iterrows()):
+    try:
+        cursor.execute("""
+            INSERT INTO energy_data (Meter, Clock, Active_Energy_Import, Active_Energy_Export, TransFullCoef)
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            row["Meter"],
+            row["Clock"],
+            row["Active_Energy_Import"],
+            row["Active_Energy_Export"],
+            row["TransFullCoef"]
+        ))
+    except mariadb.Error as e:
+        print(f"Error inserting row: {e}")
+        continue
+
+conn.commit()
+print(f"{len(df)} rows inserted successfully!")

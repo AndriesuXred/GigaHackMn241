@@ -26,18 +26,16 @@ def Graph():
 
     if response.status_code == 200:
        data = response.json()
-       sum = 0
        for entry in data:
             print(entry)
-            sum += entry["value"]
-            print(sum)
+
 
 
     else:
        print("Error:", response.status_code, response.text)
 
 #LOGIN REQUEST
-def Login():
+def Register():
     url = "http://127.0.0.1:5000/register"
     payload = {"username": "Slime", "password": "1234", "meter": 14101611}
     response = requests.post(url, json=payload)
@@ -104,6 +102,24 @@ def login_test(username, password):
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
 
-# Example usage:
-login_test("Tolea", "1234")
+def PredictEnergy():
+    meter_id = 13836498
+    url = "http://127.0.0.1:5000/predict_next_6_hours"
+    payload = {"meter_id": meter_id}
+
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status()  # Raises error for bad status codes
+
+        data = response.json()
+        print(f"Predicted energy for meter {meter_id}:")
+        for entry in data:
+            print(f"Time: {entry['label']}, Import: {entry['Import']} kWh, id: {entry['id']}")
+
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+
+PredictEnergy()
+
+
 

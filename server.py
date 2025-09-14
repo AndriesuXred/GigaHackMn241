@@ -2,7 +2,9 @@ from flask import Flask, request, jsonify
 import mariadb
 import pandas as pd
 import os
-from statsmodels.tsa.statespace.sarimax import SARIMAX
+from statsmodels.tsa.arima.model import ARIMA
+import numpy as np
+
 
 app = Flask(__name__)
 
@@ -58,11 +60,27 @@ def make_graph_json_all_time(meter_id):
     # Resample to hourly intervals
     hourly_df = df.resample('h').sum()
 
-    json_list = [
-        {"label": idx.strftime("%Y-%m-%d %H:%M"), "value": round(row['Import_Interval_kWh'], 2)}
+    # Prepare JSON for historical data with id=1
+    result = [
+        {"label": idx.strftime("%Y-%m-%d %H:%M"), "Import": round(row['Import_Interval_kWh'], 2), "id": 1}
         for idx, row in hourly_df.iterrows()
     ]
-    return json_list
+
+    # --- ARIMA prediction for next 6 hours ---
+    if len(hourly_df) >= 10:  # need enough points for ARIMA
+        model = ARIMA(hourly_df['Import_Interval_kWh'], order=(1,1,1))
+        model_fit = model.fit()
+        forecast = model_fit.forecast(steps=6)
+        last_time = hourly_df.index[-1]
+
+        for i, value in enumerate(forecast):
+            result.append({
+                "label": (last_time + pd.Timedelta(hours=i+1)).strftime("%Y-%m-%d %H:%M"),
+                "Import": round(max(value, 0), 2),  # avoid negative forecasts
+                "id": 2
+            })
+
+    return result
 
 #PEAK APP
 @app.route("/avg_hourly_energy", methods=["GET"])
@@ -401,6 +419,74 @@ def calculate_points_for_all(date_str):
     cursor.close()
     conn.close()
     return results
+
+#ARIMA APP
+@app.route("/predict_next_6_hours", methods=["POST"])
+def predict_next_6_hours():
+    data = request.get_json()
+    meter_id = data.get("meter_id")
+    if not meter_id:
+        return jsonify({"error": "Missing meter_id"}), 400
+
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT Clock, Active_Energy_Import
+        FROM energy_data
+        WHERE Meter = ?
+        ORDER BY Clock ASC
+    """, (meter_id,))
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if not rows:
+        return jsonify({"message": f"No data found for meter {meter_id}"}), 404
+
+    df = pd.DataFrame(rows, columns=["Clock", "Import_Wh"])
+    df["Clock"] = pd.to_datetime(df["Clock"])
+    df = df.sort_values("Clock")
+    df = df.set_index("Clock")
+
+    # Compute interval consumption in kWh
+    df["Interval_kWh"] = df["Import_Wh"].diff() / 1000.0
+    df = df[df["Interval_kWh"] >= 0]  # remove resets
+    df = df.dropna()
+
+    if df.empty:
+        return jsonify({"message": "No valid intervals to forecast"}), 404
+
+    # Scale data for ARIMA
+    scale_factor = 10000
+    training_series = df["Interval_kWh"] * scale_factor
+
+    # Fit ARIMA
+    model = ARIMA(training_series, order=(1,1,1))
+    model_fit = model.fit()
+
+    # Forecast next 6 hours and scale back
+    forecast = model_fit.forecast(steps=6) / scale_factor
+
+    result = []
+
+    # Historical data
+    for timestamp, value in df["Interval_kWh"].items():
+        result.append({
+            "label": timestamp.strftime("%Y-%m-%d %H:%M"),
+            "Import": round(value, 4),
+            "id": 1
+        })
+
+    # Predicted data
+    last_time = df.index[-1]
+    for i, value in enumerate(forecast):
+        result.append({
+            "label": (last_time + pd.Timedelta(hours=i+1)).strftime("%Y-%m-%d %H:%M"),
+            "Import": round(max(value, 0), 4),
+            "id": 2
+        })
+
+    return jsonify(result)
 
 
 # -----------------------------

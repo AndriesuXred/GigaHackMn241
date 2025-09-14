@@ -42,7 +42,7 @@ cd GigaHackMn241
 pip install -r requirements.txt
 ```
 
-### 3️⃣.Set up MariaDB
+### 3️⃣ Set up MariaDB
 Install MariaDB (if not already installed).
 
 Create a database:
@@ -60,7 +60,7 @@ def get_connection():
     )
 ```
 
-### 4️⃣.(Optional) Import energy data
+### 4️⃣ (Optional) Import energy data
 
 Place your .csv files into a folder (default: A:\PythonShitHackaton\EnergyTech)
 
